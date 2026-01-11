@@ -1,31 +1,54 @@
-def dfs(cw,cv,i):    #回溯算法
-    global w,v,n,W,bestv
-    if i>=n:
-        print("一个解,cw=%d,cv=%d"%(cw,cv))
-        if cw<=W and cv>bestv:           #找到一个更优解
-            bestv=cv
-    else:
-        print("不选择物品i=%d,dfs(%d,%d,%d)"%(i,cw,cv,i+1))
-        dfs(cw,cv,i+1)                 #不选择物品i      
-        if cw+w[i]<=W:
-            print("选择物品i=%d,再选i一件,dfs(%d,%d,%d)"%(i,cw+w[i],cv+v[i],i))        
-            dfs(cw+w[i],cv+v[i],i)       #剪支:选择物品i,然后继续选择物品i
-        else:
-            print("选择物品i=%d,再选i一件,dfs(%d,%d,%d)->cut"%(i,cw+w[i],cv+v[i],i))        
-        if cw+w[i]<=W:
-            print("选择物品i=%d,再选下一件,dfs(%d,%d,%d)"%(i,cw+w[i],cv+v[i],i+1))
-            dfs(cw+w[i],cv+v[i],i+1)     #剪支:选择物品i,然后选下一件 
-        else:
-            print("选择物品i=%d,再选下一件,dfs(%d,%d,%d) ->cut"%(i,cw+w[i],cv+v[i],i+1))
+def completeknap(w,v,n,W):				#求解完全背包问题
+    global dp,fk
+    dp=[[0]*(W+1) for i in range(n+1)]
+    fk=[[0]*(W+1) for i in range(n+1)]
+    for i in range(1,n+1):
+        for r in range(0,W+1):
+            k=0
+            while k*w[i-1]<=r:
+                if dp[i][r]<dp[i-1][r-k*w[i-1]]+k*v[i-1]:
+                    dp[i][r]=dp[i-1][r-k*w[i-1]]+k*v[i-1]  #物品i-1取k件
+                    fk[i][r]=k
+                k+=1
+    return dp[n][W]
 
-def compknap(w,v,n,W):
-    global bestv
-    bestv=0                 #存放最大价值,初始为0
-    dfs(0,0,0)
-    print("最大价值=",bestv)
+def getx():												#回推求一个最优方案
+    i,r=n,W
+    while i>=1:
+        print("  选择物品%d共%d件"%(i-1,fk[i][r]))
+        r-=fk[i][r]*w[i-1]											#剩余重量
+        i-=1
+  
+def solve(w,v,n,W):   #求解算法
+    print("求解结果")
+    print("  最大价值",completeknap(w,v,n,W))
+    getx()
 
-n=2; 
-w=[1,2]
-v=[2,5]
-W=2
-compknap(w,v,n,W)
+def completeknap1(w,v,n,W):						#时间改进算法
+    dp=[[0]*(W+1) for i in range(n+1)]
+    for i in range(1,n+1):
+        for r in range(0,W+1):
+            if r<w[i-1]:											#物品i-1放不下
+                dp[i][r]=dp[i-1][r];
+            else:														#在不选择和选择物品i-1（多次）中求最大值
+                dp[i][r]=max(dp[i-1][r],dp[i][r-w[i-1]]+v[i-1])
+    return dp[n][W]			#返回总价值
+  
+def completeknap2(w,v,n,W):					#空间改进算法
+    dp=[0]*(W+1)								#一维动态规划数组
+    for i in range(1,n+1):
+        for r in range(w[i-1],W+1):     #r按w[i-1]到W的顺序
+            dp[r]=max(dp[r],dp[r-w[i-1]]+v[i-1])
+    return dp[W]
+
+def solve1(w,v,n,W):   #求解算法
+    print("求解结果")
+    print("  最大价值",completeknap2(w,v,n,W))
+
+n,W=3,7
+w=[3,4,2]
+v=[4,5,3]
+    #int n=2,W=3;					#5种物品,限制重量不超过10
+    #int w[]={2,1};
+    #int v[]={3,6};
+solve(w,v,n,W)
