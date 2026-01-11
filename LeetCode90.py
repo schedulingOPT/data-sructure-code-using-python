@@ -1,12 +1,13 @@
 class Solution:
-    def subsets(self, nums: List[int]) -> List[List[int]]:
-        self.ans,self.x=[],[]
+    def subsetsWithDup(self, nums: List[int]) -> List[List[int]]:
+        nums.sort()								    #nums递增排序
+        self.ans,self.x=set(),[]
         self.dfs(nums,0)
-        return self.ans
+        return list(self.ans)
 
     def dfs(self,nums,i):           			    #回溯算法
         if i==len(nums):                             #到达一个叶子结点
-           	self.ans.append(copy.deepcopy(self.x))
+           	self.ans.add(tuple(self.x))
         else:
             self.x.append(nums[i])                  #选择nums[i], x中添加nums[i]
             self.dfs(nums,i+1)
@@ -15,7 +16,8 @@ class Solution:
 
 
 class Solution:
-    def subsets(self, nums: List[int]) -> List[List[int]]:
+    def subsetsWithDup(self, nums: List[int]) -> List[List[int]]:
+        nums.sort()
         self.ans,x=[],[]
         self.dfs(nums,x,0)
         return self.ans
@@ -23,6 +25,9 @@ class Solution:
     def dfs(self,nums,x,i):
         self.ans.append(copy.deepcopy(x))
         for j in range(i,len(nums)):
+            if j>i and nums[j]==nums[j-1]:
+                continue
             x.append(nums[j])
             self.dfs(nums,x,j+1)
             x.pop()
+
