@@ -2,15 +2,21 @@ class Solution:
     def majorityElement(self, nums: List[int]) -> int:
         n=len(nums)
         if n==1:return nums[0]
-        c,cnt=nums[0],1
-        i=1
-        while i<n:
-            if nums[i]==c:                   #选择两个元素(R[i],c)
-                cnt+=1                       #相同时累加次数
-            else:
-                cnt-=1                  #不相同时递减cnt，相当于删除这两个元素
-                if cnt==0:            #cnt为0时对剩余元素从头开始查找
-                    i+=1
-                    c=nums[i];cnt+=1
-            i+=1
-        return c
+        return self.majore(nums,0,n-1);
+
+    def majore(self,nums,low,high):
+        if low==high:return nums[low]
+        mid=(low+high)//2
+        leftmaj=self.majore(nums,low,mid)
+        rightmaj=self.majore(nums,mid+1,high)
+        if leftmaj==rightmaj:
+            return leftmaj
+        else:
+            leftcnt=0
+            for i in range(low,high+1):
+                if nums[i]==leftmaj:leftcnt+=1
+            rightcnt=0
+            for i in range(low,high+1):
+                if nums[i]==rightmaj:rightcnt+=1
+            if leftcnt>rightcnt:return leftmaj
+            else:return rightmaj
